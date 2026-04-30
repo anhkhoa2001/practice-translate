@@ -1,0 +1,17 @@
+<div class="practice-container">
+  @if (activeTab() === 'list') {
+    <app-session-list
+      [sessions]="sessions()"
+      [isLoading]="isLoadingSessions()"
+      (continueSession)="onContinueSession($event)"
+      (createNew)="onCreateNew()"
+    ></app-session-list>
+  } @else {
+    <app-reader
+      [existingSession]="currentSession()"
+      [existingPath]="sessionPath()"
+      (backToList)="onBackToList()"
+      (sessionSaved)="onSessionSaved($event)"
+    ></app-reader>
+  }
+</div>

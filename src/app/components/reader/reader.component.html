@@ -1,0 +1,121 @@
+<div class="reader-container">
+  <header class="reader-header">
+    <div class="header-left">
+      <button class="back-btn" (click)="onBack()">← Danh sách</button>
+      <h2>{{ title || 'Đang luyện dịch' }}</h2>
+    </div>
+    <div class="header-right">
+      @if (sentences().length > 0) {
+        <div class="progress-info">
+          <span class="progress-text">Đã dịch {{ translatedCount() }}/{{ totalSentences() }} câu</span>
+          <div class="progress-bar-small">
+            <div class="progress-fill" [style.width.%]="progressPercent()"></div>
+          </div>
+          @if (averageScore() > 0) {
+            <span class="score-badge high">{{ averageScore() }}/10</span>
+          }
+        </div>
+      }
+      <div class="save-status">
+        @switch (saveStatus()) {
+          @case ('saving') { <span class="status saving">Đang lưu...</span> }
+          @case ('saved') { <span class="status saved">Đã lưu ✓</span> }
+          @case ('error') { <span class="status error">Lỗi lưu</span> }
+        }
+      </div>
+    </div>
+  </header>
+
+  @if (sentences().length === 0) {
+    <div class="input-section">
+      <div class="form-group">
+        <label for="title">Tiêu đề bài viết</label>
+        <input
+          type="text"
+          id="title"
+          [(ngModel)]="title"
+          placeholder="Nhập tiêu đề bài viết..."
+          maxlength="100"
+        >
+      </div>
+
+      <div class="form-group">
+        <label for="text">Đoạn văn tiếng Anh</label>
+        <textarea
+          id="text"
+          [(ngModel)]="originalText"
+          placeholder="Dán đoạn văn tiếng Anh vào đây..."
+          [maxlength]="maxTextLength"
+          rows="10"
+        ></textarea>
+        <span class="char-count">{{ originalText.length }} / {{ maxTextLength }}</span>
+      </div>
+
+      <button
+        class="start-btn"
+        (click)="onStart()"
+        [disabled]="!originalText.trim() || !title.trim()"
+      >
+        Bắt đầu luyện dịch
+      </button>
+    </div>
+  } @else {
+    <div class="practice-section">
+      <div class="sentences-list">
+        <div class="list-header">
+          <span>Danh sách câu ({{ sentences().length }})</span>
+          <span class="nav-hint">↑↓ để di chuyển</span>
+        </div>
+        @for (sentence of sentences(); track sentence.id) {
+          <div
+            class="sentence-item"
+            [class.active]="sentence.id === currentIndex()"
+            [class.translated]="sentence.status === 'translated'"
+            (click)="currentIndex.set(sentence.id)"
+          >
+            <span class="status-dot" [class.translated]="sentence.status === 'translated'"></span>
+            <span class="sentence-num">{{ sentence.id + 1 }}.</span>
+            <span class="sentence-preview">{{ sentence.original | slice:0:50 }}...</span>
+          </div>
+        }
+      </div>
+
+      <div class="main-content">
+        @if (currentSentence(); as sentence) {
+          <div class="card-area">
+            <app-sentence-card
+              [sentence]="sentence"
+              [isActive]="true"
+              [isLoading]="isLoading()"
+              [feedback]="currentFeedback()"
+              [keywords]="currentKeywords()"
+              [suggestion]="currentSuggestion()"
+              [score]="currentScore()"
+              [apiKey]="''"
+              (submitTranslation)="onSubmitTranslation($event)"
+              (keywordsReceived)="onKeywordsReceived($event)"
+            ></app-sentence-card>
+          </div>
+
+          <div class="nav-buttons">
+            <button
+              class="nav-btn"
+              (click)="prevSentence()"
+              [disabled]="isFirst()"
+            >
+              ← Trước
+            </button>
+            <span class="progress">{{ currentIndex() + 1 }} / {{ sentences().length }}</span>
+            <button
+              class="nav-btn"
+              (click)="nextSentence()"
+              [disabled]="isLast()"
+            >
+              Tiếp theo →
+            </button>
+          </div>
+        }
+      </div>
+    </div>
+  }
+</div>

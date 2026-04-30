@@ -1,0 +1,310 @@
+.reader-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  min-height: 100vh;
+}
+
+.reader-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #eee;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.back-btn {
+  padding: 8px 16px;
+  background: #f5f5f5;
+  color: #333;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.back-btn:hover {
+  background: #e0e0e0;
+}
+
+.reader-header h2 {
+  margin: 0;
+  font-size: 20px;
+  color: #333;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.progress-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.progress-text {
+  font-size: 13px;
+  color: #666;
+}
+
+.progress-bar-small {
+  width: 100px;
+  height: 6px;
+  background: #e0e0e0;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.progress-bar-small .progress-fill {
+  height: 100%;
+  background: #4caf50;
+  border-radius: 3px;
+  transition: width 0.3s;
+}
+
+.save-status .status {
+  font-size: 13px;
+  padding: 4px 12px;
+  border-radius: 12px;
+}
+
+.save-status .saving {
+  background: #fff3e0;
+  color: #f57c00;
+}
+
+.save-status .saved {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+
+.save-status .error {
+  background: #ffebee;
+  color: #c62828;
+}
+
+.input-section {
+  max-width: 700px;
+  margin: 0 auto;
+  background: #fff;
+  padding: 32px;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: #333;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 12px 16px;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 14px;
+  box-sizing: border-box;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: #4285f4;
+}
+
+.form-group textarea {
+  width: 100%;
+  padding: 12px 16px;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 14px;
+  font-family: inherit;
+  resize: vertical;
+  box-sizing: border-box;
+}
+
+.form-group textarea:focus {
+  outline: none;
+  border-color: #4285f4;
+}
+
+.char-count {
+  display: block;
+  margin-top: 6px;
+  font-size: 12px;
+  color: #888;
+  text-align: right;
+}
+
+.start-btn {
+  width: 100%;
+  padding: 14px;
+  background: #4285f4;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.start-btn:hover:not(:disabled) {
+  background: #3367d6;
+}
+
+.start-btn:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
+.practice-section {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 24px;
+}
+
+.sentences-list {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+}
+
+.list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  background: #f8f9fa;
+  border-bottom: 1px solid #eee;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.nav-hint {
+  font-size: 12px;
+  color: #888;
+  font-weight: normal;
+}
+
+.sentence-item {
+  padding: 12px 16px;
+  border-bottom: 1px solid #f0f0f0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: background 0.15s;
+}
+
+.sentence-item:hover {
+  background: #f5f5f5;
+}
+
+.sentence-item.active {
+  background: #e3f2fd;
+  border-left: 3px solid #4285f4;
+}
+
+.sentence-item.translated {
+  background: #f8fff8;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #ccc;
+  flex-shrink: 0;
+}
+
+.status-dot.translated {
+  background: #4caf50;
+}
+
+.sentence-num {
+  color: #888;
+  font-size: 13px;
+  flex-shrink: 0;
+}
+
+.sentence-preview {
+  font-size: 13px;
+  color: #666;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.main-content {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.card-area {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  padding: 24px;
+}
+
+.nav-buttons {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+}
+
+.nav-btn {
+  padding: 10px 20px;
+  background: #f5f5f5;
+  color: #333;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.nav-btn:hover:not(:disabled) {
+  background: #e0e0e0;
+}
+
+.nav-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.progress {
+  font-size: 14px;
+  color: #666;
+}
+
+@media (max-width: 768px) {
+  .practice-section {
+    grid-template-columns: 1fr;
+  }
+
+  .sentences-list {
+    max-height: 200px;
+    overflow-y: auto;
+  }
+}

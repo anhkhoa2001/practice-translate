@@ -1,0 +1,55 @@
+<div class="session-list-container">
+  <div class="list-header">
+    <h2>Danh sách bài dịch</h2>
+    <button class="new-btn" (click)="createNew.emit()">
+      + Bài mới
+    </button>
+  </div>
+
+  @if (isLoading) {
+    <div class="loading">
+      <span class="spinner"></span>
+      <span>Đang tải...</span>
+    </div>
+  } @else if (sessions.length === 0) {
+    <div class="empty-state">
+      <p>Chưa có bài dịch nào.</p>
+      <p>Hãy tạo bài dịch mới để bắt đầu!</p>
+      <button class="new-btn" (click)="createNew.emit()">+ Tạo bài mới</button>
+    </div>
+  } @else {
+    <div class="sessions">
+      @for (session of sessions; track trackByPath($index, session)) {
+        <div class="session-card">
+          <div class="session-info">
+            <div class="session-header">
+              <h3 class="session-title">{{ session.title }}</h3>
+              @if (session.averageScore > 0) {
+                <span class="score-badge" [class]="getScoreClass(session.averageScore)">
+                  {{ session.averageScore }}/10
+                </span>
+              }
+            </div>
+            <span class="session-date">{{ formatDate(session.createdAt) }}</span>
+          </div>
+
+          <div class="progress-section">
+            <div class="progress-bar">
+              <div class="progress-fill" [style.width.%]="getProgressPercent(session)"></div>
+            </div>
+            <span class="progress-text">
+              {{ session.translatedCount }} / {{ session.totalSentences }} câu
+              @if (session.completed) {
+                <span class="completed-badge">Hoàn thành</span>
+              }
+            </span>
+          </div>
+
+          <button class="continue-btn" (click)="continueSession.emit(session)">
+            Tiếp tục
+          </button>
+        </div>
+      }
+    </div>
+  }
+</div>

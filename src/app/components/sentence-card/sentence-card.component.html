@@ -1,0 +1,61 @@
+<div class="sentence-card" [class.active]="isActive">
+  <div class="original-text">{{ sentence.original }}</div>
+
+  <div class="translation-area">
+    <textarea
+      [value]="sentence.translation"
+      (input)="onTranslationChange($any($event.target).value)"
+      (keydown.enter)="$event.preventDefault(); onSubmit()"
+      placeholder="Nhập bản dịch tiếng Việt..."
+      rows="3"
+      [disabled]="isLoading"
+    ></textarea>
+
+    <app-hint-button
+      [original]="sentence.original"
+      [apiKey]="apiKey"
+      (keywordsReceived)="onKeywordsReceived($event)"
+    ></app-hint-button>
+
+    @if (keywords.length > 0) {
+      <div class="keywords">
+        <span class="keywords-label">Gợi ý:</span>
+        @for (keyword of keywords; track keyword) {
+          <span class="keyword-tag">{{ keyword }}</span>
+        }
+      </div>
+    }
+  </div>
+
+  <div class="actions">
+    <button
+      class="submit-btn"
+      (click)="onSubmit()"
+      [disabled]="isLoading || !sentence.translation.trim()"
+    >
+      @if (isLoading) {
+        <span class="spinner"></span> Đang nhận xét...
+      } @else {
+        Gửi
+      }
+    </button>
+    @if (score !== null) {
+      <span class="score-badge" [class.low]="score < 5" [class.medium]="score >= 5 && score <= 7" [class.high]="score > 7">
+        {{ score }}/10
+      </span>
+    }
+  </div>
+
+  @if (feedback.length > 0) {
+    <div class="feedback-section">
+      <app-feedback-panel [feedback]="feedback"></app-feedback-panel>
+    </div>
+  }
+
+  @if (suggestion) {
+    <div class="suggestion-section">
+      <span class="suggestion-label">Câu dịch gợi ý:</span>
+      <p class="suggestion-text">{{ suggestion }}</p>
+    </div>
+  }
+</div>

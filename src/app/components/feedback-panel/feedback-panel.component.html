@@ -1,0 +1,12 @@
+<div class="feedback-panel">
+  @if (feedback.length === 0) {
+    <p class="no-feedback">Chưa có nhận xét</p>
+  } @else {
+    @for (item of feedback; track item.message) {
+      <div class="feedback-chip" [class.good]="item.type === 'good'" [class.error]="item.type === 'error'">
+        <span class="icon">{{ item.type === 'good' ? '🟢' : '🔴' }}</span>
+        <span class="message">{{ item.message }}</span>
+      </div>
+    }
+  }
+</div>

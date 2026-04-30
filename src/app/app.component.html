@@ -1,0 +1,5 @@
+@if (hasKeys()) {
+  <app-practice-container></app-practice-container>
+} @else {
+  <app-api-key-setup (keysConfigured)="onKeysConfigured()"></app-api-key-setup>
+}

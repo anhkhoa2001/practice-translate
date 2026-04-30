@@ -1,0 +1,16 @@
+<div class="hint-button-container">
+  <button
+    class="hint-btn"
+    (click)="onClick()"
+    [disabled]="isLoading"
+  >
+    @if (isLoading) {
+      <span class="spinner"></span> Đang tải gợi ý...
+    } @else {
+      💡 Gợi ý
+    }
+  </button>
+  @if (error) {
+    <span class="error-msg">{{ error }}</span>
+  }
+</div>

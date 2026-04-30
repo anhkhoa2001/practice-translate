@@ -1,0 +1,38 @@
+.feedback-panel {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.no-feedback {
+  color: #888;
+  font-style: italic;
+  margin: 0;
+}
+
+.feedback-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+.feedback-chip.good {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+
+.feedback-chip.error {
+  background: #ffebee;
+  color: #c62828;
+}
+
+.icon {
+  font-size: 12px;
+}
+
+.message {
+  line-height: 1.4;
+}
