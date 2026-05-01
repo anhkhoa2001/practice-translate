@@ -1,0 +1,43 @@
+<div class="vocab-list-container">
+  <div class="list-header">
+    <h2>Danh sách từ mới</h2>
+    <span class="vocab-count">{{ items.length }} từ</span>
+  </div>
+
+  @if (isLoading) {
+    <div class="loading">
+      <span class="spinner"></span>
+      <span>Đang tải...</span>
+    </div>
+  } @else if (items.length === 0) {
+    <div class="empty-state">
+      <p>Chưa có từ mới nào.</p>
+      <p>Hãy tra từ mới khi luyện dịch để thêm vào danh sách!</p>
+    </div>
+  } @else {
+    <div class="vocab-table">
+      <div class="table-header">
+        <span class="col-word">Từ</span>
+        <span class="col-phonetic">Phiên âm</span>
+        <span class="col-type">Loại từ</span>
+        <span class="col-meaning">Nghĩa</span>
+        <span class="col-example">Ví dụ</span>
+        <span class="col-date">Ngày thêm</span>
+      </div>
+      <div class="table-body">
+        @for (item of items; track trackByWord($index, item)) {
+          <div class="vocab-row">
+            <span class="col-word">
+              <span class="word-text">{{ item.word }}</span>
+            </span>
+            <span class="col-phonetic">{{ item.phonetic }}</span>
+            <span class="col-type">{{ item.partOfSpeech }}</span>
+            <span class="col-meaning">{{ item.meaning }}</span>
+            <span class="col-example">{{ item.example }}</span>
+            <span class="col-date">{{ formatDate(item.createdAt) }}</span>
+          </div>
+        }
+      </div>
+    </div>
+  }
+</div>

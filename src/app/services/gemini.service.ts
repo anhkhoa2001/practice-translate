@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 import { Feedback, EvaluationResult } from '../models/feedback.model';
+import { VocabularyItem } from '../models/vocabulary.model';
 import { environment } from '../../environments/environment';
 
 export class GeminiApiError extends Error {
@@ -58,6 +59,19 @@ export class GeminiService {
     );
   }
 
+  lookupVocabulary(apiKey: string, word: string): Observable<VocabularyItem> {
+    const prompt = this.buildVocabularyPrompt(word);
+    return this.callGemini(apiKey, prompt).pipe(
+      map(response => this.parseVocabularyResponse(response, word)),
+      catchError(error => {
+        if (error instanceof GeminiApiError || error instanceof ParseError) {
+          return throwError(() => error);
+        }
+        return throwError(() => new GeminiApiError(error.message || 'Network error'));
+      })
+    );
+  }
+
   private buildTranslationPrompt(original: string, translation: string, fullText: string): string {
     return `Bạn là một giáo viên dạy dịch thuật tiếng Anh sang tiếng Việt.
 Hãy nhận xét bản dịch sau của học viên dựa trên ngữ cảnh của toàn bộ đoạn văn.
@@ -91,6 +105,20 @@ Hãy nhận xét và đưa ra câu dịch mẫu tốt nhất. Trả lời dướ
     return `Cho câu tiếng Anh sau: "${original}"
 Hãy đưa ra 3-5 từ khóa quan trọng cần chú ý khi dịch sang tiếng Việt.
 Trả lời dạng JSON: {"keywords": ["từ 1", "từ 2", ...]}`;
+  }
+
+  private buildVocabularyPrompt(word: string): string {
+    return `Cho từ tiếng Anh sau: "${word}"
+Hãy cung cấp thông tin chi tiết dưới dạng JSON:
+{
+  "word": "...", "phonetic": "...", "partOfSpeech": "...",
+  "meaning": "...", "example": "..."
+}
+- phonetic: Phiên âm IPA (ví dụ: /əˈdres/)
+- partOfSpeech: Loại từ tiếng Việt (danh từ, động từ, tính từ, trạng từ, v.v.)
+- meaning: Nghĩa tiếng Việt ngắn gọn, dễ hiểu
+- example: Một câu tiếng Anh ví dụ sử dụng từ đó (1-2 câu)
+Chỉ trả lời đúng định dạng JSON, không giải thích thêm.`;
   }
 
   private callGemini(apiKey: string, prompt: string): Observable<any> {
@@ -134,6 +162,29 @@ Trả lời dạng JSON: {"keywords": ["từ 1", "từ 2", ...]}`;
         throw e;
       }
       throw new ParseError('Failed to parse keywords response');
+    }
+  }
+
+  private parseVocabularyResponse(response: any, word: string): VocabularyItem {
+    try {
+      const text = response.candidates?.[0]?.content?.parts?.[0]?.text;
+      if (!text) {
+        throw new ParseError('No response text from Gemini');
+      }
+      const json = this.extractJson(text) as VocabularyItem;
+      return {
+        word: json.word || word,
+        phonetic: json.phonetic || '',
+        partOfSpeech: json.partOfSpeech || '',
+        meaning: json.meaning || '',
+        example: json.example || '',
+        createdAt: new Date().toISOString()
+      };
+    } catch (e) {
+      if (e instanceof ParseError) {
+        throw e;
+      }
+      throw new ParseError('Failed to parse vocabulary response');
     }
   }
 

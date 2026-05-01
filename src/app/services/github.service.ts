@@ -3,6 +3,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, throwError, of, forkJoin } from 'rxjs';
 import { map, catchError, switchMap } from 'rxjs/operators';
 import { ArticleSession, SessionSummary } from '../models/article-session.model';
+import { VocabularyItem } from '../models/vocabulary.model';
 import { environment } from '../../environments/environment';
 
 export interface GithubSaveResult {
@@ -184,5 +185,75 @@ export class GithubService {
       .replace(/\s+/g, '-')
       .replace(/--+/g, '-')
       .substring(0, 50);
+  }
+
+  loadVocabulary(token: string): Observable<VocabularyItem[]> {
+    const url = `${this.API_URL}/${this.REPO_OWNER}/${this.REPO_NAME}/contents/vocabulary/vocab.json`;
+    const headers = new HttpHeaders({
+      'Authorization': `token ${token}`,
+      'Accept': 'application/vnd.github.v3+json'
+    });
+
+    return this.http.get<any>(url, { headers }).pipe(
+      map(response => {
+        const content = this.decodeBase64(response.content);
+        const items = JSON.parse(content) as VocabularyItem[];
+        return items.sort((a, b) =>
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        );
+      }),
+      catchError(err => {
+        if (err.status === 404) {
+          return of([]);
+        }
+        return throwError(() => new Error(err.message || 'Failed to load vocabulary'));
+      })
+    );
+  }
+
+  saveVocabulary(token: string, newItem: VocabularyItem, existingItems: VocabularyItem[]): Observable<{ success: boolean; error?: string }> {
+    const filename = 'vocabulary/vocab.json';
+    const getUrl = `${this.API_URL}/${this.REPO_OWNER}/${this.REPO_NAME}/contents/${filename}`;
+    const putUrl = `${this.API_URL}/${this.REPO_OWNER}/${this.REPO_NAME}/contents/${filename}`;
+
+    const headers = new HttpHeaders({
+      'Authorization': `token ${token}`,
+      'Accept': 'application/vnd.github.v3+json'
+    });
+
+    const deduped = existingItems.filter(v => v.word.toLowerCase() !== newItem.word.toLowerCase());
+    const updatedItems = [...deduped, newItem];
+    const content = btoa(unescape(encodeURIComponent(JSON.stringify(updatedItems, null, 2))));
+
+    return this.http.get<any>(getUrl, { headers }).pipe(
+      catchError(err => {
+        if (err.status === 404) {
+          return of(null);
+        }
+        return throwError(() => new Error(err.message || 'Failed to check vocabulary file'));
+      }),
+      switchMap(existingFile => {
+        const body: any = {
+          message: `Add vocabulary: ${newItem.word}`,
+          content
+        };
+        if (existingFile && existingFile.sha) {
+          body.sha = existingFile.sha;
+        }
+
+        return this.http.put(putUrl, body, { headers }).pipe(
+          map(() => ({ success: true })),
+          catchError(err => {
+            let errorMsg = 'Failed to save vocabulary';
+            if (err.status === 401) {
+              errorMsg = 'Invalid GitHub token';
+            } else if (err.status === 404) {
+              errorMsg = 'Repository not found';
+            }
+            return of({ success: false, error: errorMsg });
+          })
+        );
+      })
+    );
   }
 }

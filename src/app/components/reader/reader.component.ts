@@ -1,8 +1,9 @@
-import { Component, signal, computed, HostListener, Input, Output, EventEmitter, OnInit, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, signal, computed, HostListener, Input, Output, EventEmitter, OnInit, OnChanges, SimpleChanges, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Sentence } from '../../models/sentence.model';
 import { Feedback } from '../../models/feedback.model';
+import { VocabularyItem } from '../../models/vocabulary.model';
 import { ArticleSession } from '../../models/article-session.model';
 import { TextProcessorService } from '../../services/text-processor.service';
 import { GeminiService } from '../../services/gemini.service';
@@ -24,6 +25,8 @@ export class ReaderComponent implements OnInit, OnChanges {
   @Output() backToList = new EventEmitter<void>();
   @Output() sessionSaved = new EventEmitter<string>();
 
+  @ViewChild('sentenceCard') sentenceCard?: SentenceCardComponent;
+
   originalText = '';
   title = '';
   sentences = signal<Sentence[]>([]);
@@ -34,6 +37,7 @@ export class ReaderComponent implements OnInit, OnChanges {
   currentSuggestion = signal('');
   currentScore = signal<number | null>(null);
   saveStatus = signal<'idle' | 'saving' | 'saved' | 'error'>('idle');
+  vocabSaveStatus = signal<'idle' | 'saving' | 'saved' | 'error' | 'duplicate'>('idle');
 
   maxTextLength = 10000;
 
@@ -200,6 +204,53 @@ export class ReaderComponent implements OnInit, OnChanges {
     this.sentences.set([...sents]);
   }
 
+  onLookupVocabulary(word: string): void {
+    const apiKey = this.storageService.getApiKey();
+    if (!apiKey || !this.sentenceCard) return;
+
+    this.sentenceCard.setVocabLoading(true);
+
+    this.geminiService.lookupVocabulary(apiKey, word).subscribe({
+      next: (result) => {
+        result.sessionPath = this.existingPath || '';
+        this.sentenceCard!.setVocabResult(result);
+        this.saveVocabItem(result);
+      },
+      error: (err) => {
+        this.sentenceCard!.setVocabResult(null, err.message || 'Lỗi khi tra từ');
+      }
+    });
+  }
+
+  private saveVocabItem(item: VocabularyItem): void {
+    const token = this.storageService.getGithubToken();
+    if (!token) return;
+
+    this.vocabSaveStatus.set('saving');
+
+    this.githubService.loadVocabulary(token).subscribe({
+      next: (existingItems) => {
+        this.githubService.saveVocabulary(token, item, existingItems).subscribe({
+          next: (result) => {
+            if (result.success) {
+              this.vocabSaveStatus.set('saved');
+            } else if (result.error === 'Từ này đã có trong danh sách') {
+              this.vocabSaveStatus.set('duplicate');
+            } else {
+              this.vocabSaveStatus.set('error');
+            }
+          },
+          error: () => {
+            this.vocabSaveStatus.set('error');
+          }
+        });
+      },
+      error: () => {
+        this.vocabSaveStatus.set('error');
+      }
+    });
+  }
+
   nextSentence(): void {
     if (this.isLast()) return;
     this.currentIndex.update(i => i + 1);
@@ -207,6 +258,7 @@ export class ReaderComponent implements OnInit, OnChanges {
     this.currentKeywords.set([]);
     this.currentSuggestion.set('');
     this.currentScore.set(null);
+    this.resetVocabCard();
   }
 
   prevSentence(): void {
@@ -216,6 +268,14 @@ export class ReaderComponent implements OnInit, OnChanges {
     this.currentKeywords.set([]);
     this.currentSuggestion.set('');
     this.currentScore.set(null);
+    this.resetVocabCard();
+  }
+
+  private resetVocabCard(): void {
+    if (this.sentenceCard) {
+      this.sentenceCard.setVocabResult(null);
+      this.vocabSaveStatus.set('idle');
+    }
   }
 
   onBack(): void {

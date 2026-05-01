@@ -4,21 +4,25 @@ import { GithubService } from '../../services/github.service';
 import { StorageService } from '../../services/storage.service';
 import { SessionListComponent } from '../session-list/session-list.component';
 import { ReaderComponent } from '../reader/reader.component';
+import { VocabularyListComponent } from '../vocabulary-list/vocabulary-list.component';
 import { SessionSummary, ArticleSession } from '../../models/article-session.model';
+import { VocabularyItem } from '../../models/vocabulary.model';
 
 @Component({
   selector: 'app-practice-container',
   standalone: true,
-  imports: [CommonModule, SessionListComponent, ReaderComponent],
+  imports: [CommonModule, SessionListComponent, ReaderComponent, VocabularyListComponent],
   templateUrl: './practice-container.component.html',
   styleUrl: './practice-container.component.css'
 })
 export class PracticeContainerComponent implements OnInit {
-  activeTab = signal<'list' | 'practice'>('list');
+  activeTab = signal<'list' | 'practice' | 'vocabulary'>('list');
   sessions = signal<SessionSummary[]>([]);
   isLoadingSessions = signal(false);
   currentSession = signal<ArticleSession | null>(null);
   sessionPath = signal<string | null>(null);
+  vocabItems = signal<VocabularyItem[]>([]);
+  isLoadingVocab = signal(false);
 
   constructor(
     private githubService: GithubService,
@@ -43,6 +47,34 @@ export class PracticeContainerComponent implements OnInit {
         this.isLoadingSessions.set(false);
       }
     });
+  }
+
+  loadVocabulary(): void {
+    const token = this.storageService.getGithubToken();
+    if (!token) return;
+
+    this.isLoadingVocab.set(true);
+    this.githubService.loadVocabulary(token).subscribe({
+      next: (items) => {
+        this.vocabItems.set(items);
+        this.isLoadingVocab.set(false);
+      },
+      error: () => {
+        this.isLoadingVocab.set(false);
+      }
+    });
+  }
+
+  onSelectVocabularyTab(): void {
+    this.activeTab.set('vocabulary');
+    this.loadVocabulary();
+  }
+
+  onSelectListTab(): void {
+    if (this.activeTab() !== 'list') {
+      this.loadSessions();
+      this.activeTab.set('list');
+    }
   }
 
   onContinueSession(summary: SessionSummary): void {

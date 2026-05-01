@@ -58,4 +58,47 @@
       <p class="suggestion-text">{{ suggestion }}</p>
     </div>
   }
+
+  <div class="vocab-section">
+    <span class="vocab-label">Từ mới</span>
+    <div class="vocab-input-row">
+      <input
+        type="text"
+        class="vocab-input"
+        [(ngModel)]="vocabInput"
+        placeholder="Nhập từ mới để tra..."
+        (keydown.enter)="onLookupVocabulary()"
+        [disabled]="isLoading"
+      >
+      <button
+        class="vocab-btn"
+        (click)="onLookupVocabulary()"
+        [disabled]="isLoading || !vocabInput.trim()"
+      >
+        Tra từ
+      </button>
+    </div>
+
+    @if (isVocabLoading) {
+      <div class="vocab-preview loading">
+        <span class="spinner small"></span> Đang tra từ...
+      </div>
+    }
+
+    @if (vocabError) {
+      <div class="vocab-preview error">{{ vocabError }}</div>
+    }
+
+    @if (currentVocab) {
+      <div class="vocab-preview result">
+        <div class="vocab-word">{{ currentVocab.word }}</div>
+        <div class="vocab-phonetic">{{ currentVocab.phonetic }}</div>
+        <div class="vocab-type">{{ currentVocab.partOfSpeech }}</div>
+        <div class="vocab-meaning">{{ currentVocab.meaning }}</div>
+        @if (currentVocab.example) {
+          <div class="vocab-example">"{{ currentVocab.example }}"</div>
+        }
+      </div>
+    }
+  </div>
 </div>

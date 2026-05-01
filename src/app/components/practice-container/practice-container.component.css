@@ -2,3 +2,33 @@
   min-height: 100vh;
   background: #f5f5f5;
 }
+
+.tab-bar {
+  display: flex;
+  gap: 0;
+  padding: 12px 20px 0;
+  background: #fff;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.tab-btn {
+  padding: 10px 20px;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  font-size: 14px;
+  font-weight: 500;
+  color: #666;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.tab-btn:hover {
+  color: #333;
+}
+
+.tab-btn.active {
+  color: #4285f4;
+  border-bottom-color: #4285f4;
+  font-weight: 600;
+}

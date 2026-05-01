@@ -84,6 +84,7 @@
         @if (currentSentence(); as sentence) {
           <div class="card-area">
             <app-sentence-card
+              #sentenceCard
               [sentence]="sentence"
               [isActive]="true"
               [isLoading]="isLoading()"
@@ -94,6 +95,7 @@
               [apiKey]="''"
               (submitTranslation)="onSubmitTranslation($event)"
               (keywordsReceived)="onKeywordsReceived($event)"
+              (lookupVocabulary)="onLookupVocabulary($event)"
             ></app-sentence-card>
           </div>
 

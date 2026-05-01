@@ -1,4 +1,21 @@
 <div class="practice-container">
+  <div class="tab-bar">
+    <button
+      class="tab-btn"
+      [class.active]="activeTab() === 'list'"
+      (click)="onSelectListTab()"
+    >
+      Bài dịch
+    </button>
+    <button
+      class="tab-btn"
+      [class.active]="activeTab() === 'vocabulary'"
+      (click)="onSelectVocabularyTab()"
+    >
+      Từ mới
+    </button>
+  </div>
+
   @if (activeTab() === 'list') {
     <app-session-list
       [sessions]="sessions()"
@@ -6,12 +23,17 @@
       (continueSession)="onContinueSession($event)"
       (createNew)="onCreateNew()"
     ></app-session-list>
-  } @else {
+  } @else if (activeTab() === 'practice') {
     <app-reader
       [existingSession]="currentSession()"
       [existingPath]="sessionPath()"
       (backToList)="onBackToList()"
       (sessionSaved)="onSessionSaved($event)"
     ></app-reader>
+  } @else {
+    <app-vocabulary-list
+      [items]="vocabItems()"
+      [isLoading]="isLoadingVocab()"
+    ></app-vocabulary-list>
   }
 </div>
